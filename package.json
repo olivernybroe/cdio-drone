@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/uruloke/cdio-drone/issues"
   },
-  "homepage": "https://github.com/uruloke/cdio-drone#readme"
+  "homepage": "https://github.com/uruloke/cdio-drone#readme",
+  "dependencies": {
+    "ar-drone": "^0.3.3"
+  }
 }
