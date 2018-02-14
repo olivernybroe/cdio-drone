@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/uruloke/cdio-drone#readme",
   "dependencies": {
-    "ar-drone": "^0.3.3"
+    "ar-drone": "^0.3.3",
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "ffmpeg": "0.0.4",
+    "jsqr": "^1.0.1"
   }
 }

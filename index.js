@@ -1,15 +1,16 @@
-var arDrone = require('ar-drone');
-var client  = arDrone.createClient();
+import jsQR from "jsqr";
+import arDrone from "ar-drone";
 
-client.takeoff(function () {
-    
+let client = arDrone.createClient();
+
+
+let pngStream = client.getPngStream();
+
+
+pngStream.on('data', function (data) {
+    console.log(data.constructor.name);
+    console.log(jsQR());
 });
 
-client
-    .after(5000, function() {
-        this.front(0.2)
-    })
-    .after(4000, function() {
-        this.stop();
-        this.land();
-    });
+
+
