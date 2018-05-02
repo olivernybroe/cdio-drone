@@ -1,5 +1,6 @@
 import cv2
 from time import sleep
+import Recognition.Recognition
 
 
 def _try():
@@ -20,6 +21,7 @@ def _try():
 
 
 def _process_image(image):
+    print(Recognition.Recognition.Recognition.recognise(image))
     cv2.imshow('frame', image)
     if cv2.waitKey(1) & 0xFF == 27:
         exit(0)
