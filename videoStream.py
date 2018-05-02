@@ -21,7 +21,7 @@ def _try():
 
 
 def _process_image(image):
-    print(Recognition.Recognition.Recognition.recognise(image))
+    print(Recognition.Recognition.Recognition.recognize(image))
     cv2.imshow('frame', image)
     if cv2.waitKey(1) & 0xFF == 27:
         exit(0)

@@ -5,5 +5,5 @@ from pyzbar.wrapper import ZBarSymbol
 class Qr:
 
     @staticmethod
-    def regonise(image):
+    def recognize(image):
         return decode(image, symbols=[ZBarSymbol.QRCODE])
