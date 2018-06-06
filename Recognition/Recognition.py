@@ -1,4 +1,7 @@
+from cv2 import cv2
+
 from Recognition.QR import Qr
+from Recognition.Ring import Ring
 
 
 class Recognition:
@@ -20,9 +23,12 @@ class Recognition:
     def recognize(self):
         return {
             'qr': self._find_qr(),
-            'rings': []
+            'rings': self._find_rings()
         }
 
     def _find_qr(self):
         return Qr.recognize(self.image)
+
+    def _find_rings(self):
+        return Ring.recognize(self.image)
 
