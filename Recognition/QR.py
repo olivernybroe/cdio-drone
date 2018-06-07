@@ -1,6 +1,6 @@
 from pyzbar.pyzbar import decode
 from pyzbar.wrapper import ZBarSymbol
-from Recognition.Polygon import Polygon, Point
+from Recognition.Figure import Polygon, Point
 
 
 class Qr:
