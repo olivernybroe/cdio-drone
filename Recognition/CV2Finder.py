@@ -13,7 +13,7 @@ class CV2Finder:
 
     def recognize(self):
         gray = self.image.copy()
-        gray = cv2.bilateralFilter(gray, 11, 17, 17)
+        gray = cv2.bilateralFilter(gray, 5, 17, 17)
         edged = cv2.Canny(gray, 200, 200)
 
         # find contours in the edged image, keep only the largest
@@ -21,7 +21,8 @@ class CV2Finder:
         _, contours, _ = cv2.findContours(edged.copy(), cv2.RETR_TREE,
                                           cv2.CHAIN_APPROX_SIMPLE)
 
-        contours = sorted(contours, key=cv2.contourArea, reverse=True)[:30]
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+        #cv2.drawContours(self.image, contours, -1, (0, 255, 0), 1)
 
         possible_rings = []
         possible_qrs = []
@@ -41,11 +42,16 @@ class CV2Finder:
                 possible_rings.append(ellipse)
 
         # Find all qr codes
-        if len(possible_qrs) > 4:
-            for possible_qr in possible_qrs:
-                # TODO: limit to not add qrs which is inside already added qrs.
-                if len(CV2Finder.contains(possible_qr, possible_qrs)) >= 3:
-                    self.qrs.append(possible_qr)
+        #cv2.drawContours(self.image, possible_qrs, -1, (0, 255, 0), 1)
+        for possible_qr in possible_qrs:
+            contains = CV2Finder.contains(possible_qr, possible_qrs)
+            #print(contains)
+            # TODO: limit to not add qrs which is inside already added qrs.
+            if (len(contains) >= 2 and
+                    not any(
+                        bool(CV2Finder.contains(qr, [possible_qr]))
+                        for qr in self.qrs)):
+                self.qrs.append(possible_qr)
 
         # Find all rings.
         for possible_ring in possible_rings:
@@ -71,8 +77,9 @@ class CV2Finder:
                     lb[0][0] < child_lb[0][0] and lb[0][1] > child_lb[0][1] and
                     rb[0][0] > child_rb[0][0] and rb[0][1] > child_rb[0][1] and
                     CV2Finder.size(matchingContour) > CV2Finder.size(
-                        contour) + 5000):
+                        contour) + 00):
                 matches.append(contour)
+
         return matches
 
     @staticmethod

@@ -2,10 +2,10 @@ from cv2 import cv2
 
 from Recognition.QR import Qr
 from Recognition.CV2Finder import CV2Finder
+import numpy as np
 
 
 class Recognition:
-
     image = None
 
     def __init__(self, image):
@@ -28,9 +28,45 @@ class Recognition:
             'rings': cv2_result['rings']
         }
 
+    @staticmethod
+    def dd(image):
+        Recognition.show(image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        exit(0)
+
+    @staticmethod
+    def show(image):
+        result = Recognition(image).recognize()
+
+        polygon = []
+        for qr in result['qr']:
+            pts = np.array(
+                list(
+                    map(lambda point: [point.x, point.y],
+                        qr['location'].points)
+                ),
+                np.int32
+            ).reshape((-1, 1, 2))
+            polygon.append(pts)
+
+        for ring in result['rings']:
+            cv2.ellipse(
+                img=image,
+                center=(int(ring.center.x), int(ring.center.y)),
+                axes=(int(ring.maxLength), int(ring.minLength)),
+                angle=ring.angle,
+                color=(0, 255, 255),
+                startAngle=0,
+                endAngle=360
+            )
+
+        cv2.polylines(image, polygon, True, (0, 255, 255))
+        cv2.imshow('detected circles', image)
+        cv2.moveWindow('detected circles', 20, 20)
+
     def _find_from_qr(self):
         return Qr.recognize(self.image)
 
     def _find_with_cv2(self):
         return CV2Finder(self.image).recognize()
-

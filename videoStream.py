@@ -13,7 +13,7 @@ def _try():
 
     while running:
         running, frame = cam.read()
-        if running & frame is not None:
+        if running and frame is not None:
             _process_image(frame)
 
     print("Disconnected, reconnecting to drone.")
@@ -21,8 +21,8 @@ def _try():
 
 
 def _process_image(image):
-    print(Recognition.Recognition.Recognition.recognize(image))
-    cv2.imshow('frame', image)
+    #print(Recognition.Recognition.Recognition.recognize(image))
+    Recognition.Recognition.Recognition.show(image)
     if cv2.waitKey(1) & 0xFF == 27:
         exit(0)
 
