@@ -11,6 +11,66 @@ class CV2Finder:
         self.rings = []
         self.qrs = []
 
+    def recognize2(self):
+        gray = self.image.copy()
+        gray = cv2.bilateralFilter(gray, 5, 17, 17)
+        edged = cv2.Canny(gray, 200, 200)
+
+        # find contours in the edged image, keep only the largest
+        # ones, and initialize our screen contour
+        _, contours, hierarchy = cv2.findContours(edged.copy(), cv2.RETR_TREE,
+                                                  cv2.CHAIN_APPROX_SIMPLE)
+
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+
+        possible_qrs = []
+        possible_corner = []
+        for contour in contours:
+            # approximate the contour
+            peri = cv2.arcLength(contour, False)
+            approx = cv2.approxPolyDP(contour, 0.03 * peri, True)
+            # rings.append(approx)
+
+            # Find all possible squares
+            if len(approx) == 4:
+                closeness = (self.length(approx[0], approx[1]) /
+                             self.length(approx[1], approx[2]))
+
+                if 0.85 <= closeness <= 1.15 and self.size(approx) > 10:
+                    possible_corner.append(approx)
+
+                possible_qrs.append(approx)
+
+        corners = []
+        for corner in possible_corner:
+            cornerLength = self.length(corner[0], corner[1])
+
+            for other in possible_corner:
+                if corner[0][0][0] == other[0][0][0]:
+                    continue
+                if (self.length(corner[0], other[0])) <= cornerLength * 3:
+                    corners.append(corner)
+
+        cv2.drawContours(self.image, corners, -1, (0, 255, 0), 1)
+        self.dd()
+
+        # Find all qr codes
+        # cv2.drawContours(self.image, possible_qrs, -1, (0, 255, 0), 1)
+        for possible_qr in possible_qrs:
+            contains = CV2Finder.contains(possible_qr, possible_qrs)
+            # print(contains)
+            # TODO: limit to not add qrs which is inside already added qrs.
+            if (len(contains) >= 2 and
+                    not any(
+                        bool(CV2Finder.contains(qr, [possible_qr]))
+                        for qr in self.qrs)):
+                self.qrs.append(possible_qr)
+
+        return {
+            'qr': CV2Finder.transform_qrs(self.qrs),
+            'rings': CV2Finder.transform_rings(self.rings)
+        }
+
     def recognize(self):
         gray = self.image.copy()
         gray = cv2.bilateralFilter(gray, 5, 17, 17)
@@ -22,7 +82,6 @@ class CV2Finder:
                                           cv2.CHAIN_APPROX_SIMPLE)
 
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
-        #cv2.drawContours(self.image, contours, -1, (0, 255, 0), 1)
 
         possible_rings = []
         possible_qrs = []
@@ -42,10 +101,10 @@ class CV2Finder:
                 possible_rings.append(ellipse)
 
         # Find all qr codes
-        #cv2.drawContours(self.image, possible_qrs, -1, (0, 255, 0), 1)
+        # cv2.drawContours(self.image, possible_qrs, -1, (0, 255, 0), 1)
         for possible_qr in possible_qrs:
             contains = CV2Finder.contains(possible_qr, possible_qrs)
-            #print(contains)
+            # print(contains)
             # TODO: limit to not add qrs which is inside already added qrs.
             if (len(contains) >= 2 and
                     not any(
@@ -62,6 +121,14 @@ class CV2Finder:
             'qr': CV2Finder.transform_qrs(self.qrs),
             'rings': CV2Finder.transform_rings(self.rings)
         }
+
+    @classmethod
+    def length(cls, pointA, pointB):
+        x1 = pointA[0][0]
+        y1 = pointA[0][1]
+        x2 = pointB[0][0]
+        y2 = pointB[0][1]
+        return np.sqrt(np.power((x2 - x1), 2) + np.power((y2 - y1), 2))
 
     @staticmethod
     def contains(matchingContour, contours):

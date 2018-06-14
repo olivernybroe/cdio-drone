@@ -1,4 +1,5 @@
 from cv2 import cv2
+from darkflow.net.build import TFNet
 
 from Recognition.QR import Qr
 from Recognition.CV2Finder import CV2Finder
@@ -8,7 +9,7 @@ import numpy as np
 class Recognition:
     image = None
 
-    def __init__(self, image):
+    def __init__(self, threshold=0.8):
         """
         Construct the recognition object.
 
@@ -18,15 +19,24 @@ class Recognition:
 
         :param image:
         """
-        self.image = image
+        options = {"pbLoad": "Yolo/tiny-yolo-voc-2c.pb",
+                   "metaLoad": "Yolo/tiny-yolo-voc-2c.meta",
+                   "threshold": threshold,
+                   # "verbalise": False,
+                   }
 
-    def recognize(self):
-        cv2_result = self._find_with_cv2()
+        self.tf_net = TFNet(options)
 
-        return {
-            'qr': self._find_from_qr() + cv2_result['qr'],
-            'rings': cv2_result['rings']
-        }
+    def recognize(self, image):
+        result = self.tf_net.return_predict(image)
+        return result
+
+        # cv2_result = self._find_with_cv2(image)
+
+        # return {
+        #     'qr': self._find_from_qr() + cv2_result['qr'],
+        #     'rings': cv2_result['rings']
+        # }
 
     @staticmethod
     def dd(image):
@@ -37,7 +47,7 @@ class Recognition:
 
     @staticmethod
     def show(image):
-        result = Recognition(image).recognize()
+        result = Recognition().recognize(image)
 
         polygon = []
         for qr in result['qr']:
@@ -65,8 +75,8 @@ class Recognition:
         cv2.imshow('detected circles', image)
         cv2.moveWindow('detected circles', 20, 20)
 
-    def _find_from_qr(self):
-        return Qr.recognize(self.image)
+    def _find_from_qr(self, image):
+        return Qr.recognize(image)
 
-    def _find_with_cv2(self):
-        return CV2Finder(self.image).recognize()
+    def _find_with_cv2(self, image):
+        return CV2Finder(image).recognize()

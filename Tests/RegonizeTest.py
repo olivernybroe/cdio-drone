@@ -1,8 +1,8 @@
 import cv2
 
 import unittest
-import zbarlight
-import zxing
+from darkflow.net.build import TFNet
+import cv2
 
 from Recognition.Recognition import Recognition
 
@@ -10,6 +10,19 @@ from Recognition.Recognition import Recognition
 class TestQrRecognition(unittest.TestCase):
 
     def test_can_find_qrs_on_qr_image(self):
+        options = {"pbLoad": "../Yolo/tiny-yolo-voc-2c.pb",
+                   "metaLoad": "../Yolo/tiny-yolo-voc-2c.meta",
+                   "threshold": 0.8,
+                   # "verbalise": False,
+
+                   }
+
+        tfnet = TFNet(options)
+
+        imgcv = cv2.imread("../examples/7.jpg")
+        result = tfnet.return_predict(imgcv)
+        print(result)
+
         img = cv2.imread('../examples/qr.jpg')
         recognition = Recognition(img)
 
@@ -27,10 +40,6 @@ class TestQrRecognition(unittest.TestCase):
 
     def test_find_qr_on_image_8(self):
         img = cv2.imread('../examples/8.jpg')
-
-        reader = zxing.BarCodeReader()
-        barcode = reader.decode("../examples/8.jpg")
-        print(barcode)
 
         recognition = Recognition(img)
 
