@@ -28,6 +28,7 @@ class Recognition:
         self.tf_net = TFNet(options)
 
     def recognize(self, image):
+
         result = self.tf_net.return_predict(image)
         return result
 

@@ -15,6 +15,7 @@ def _try(process_image):
     print("Connected.")
     while running:
         running, frame = cam.read()
+
         if running and frame is not None:
             process_image(frame)
 
