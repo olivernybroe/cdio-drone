@@ -54,10 +54,8 @@ class Drone:
 
     def __init__(self, demo=False):
         self.drone = psDrone()
-        self.drone.setConfigAllID()
-        self.drone.hdVideo()
-        self.drone.videoFPS(5)
         self.drone.startup()
+        print(self.drone.getBattery())
         self.recognition = Recognition(threshold=0.2)
         self.demo = demo
 
@@ -88,14 +86,32 @@ class Drone:
             self.drone.moveForward(0.1)
         print("forward")
 
-    def left(self):
+    def rotate_left(self, wait=0.1):
+        print("rotate left")
+        if not self.demo:
+            self.drone.turnLeft()
+            sleep(wait)
+            self.hover()
+
+    def rotate_right(self, wait=0.1):
+        print("rotate eight")
+        if not self.demo:
+            self.drone.turnRight()
+            sleep(wait)
+            self.hover()
+
+    def left(self, wait=0.3):
         if not self.demo:
             self.drone.moveLeft(0.1)
+            sleep(wait)
+            self.hover()
         print("left")
 
-    def right(self):
+    def right(self, wait=0.3):
         if not self.demo:
             self.drone.moveRight(0.1)
+            sleep(wait)
+            self.hover()
         print("right")
 
     def process_image(self, image):
@@ -113,13 +129,13 @@ class Drone:
             print(qr, height, width)
             top_left = qr['topleft']
 
-            closeness_x = width / 2 / top_left['x']
+            closeness_x = width / 2 / (top_left['x']+1)
             print("closeness:" + str(closeness_x))
 
             if closeness_x > 1.15:
-                drone.left()
+                drone.rotate_left()
             elif closeness_x < 0.85:
-                drone.right()
+                drone.rotate_right()
             else:
                 drone.hover()
 
@@ -127,7 +143,7 @@ class Drone:
 
 
 if __name__ == '__main__':
-    drone = Drone(True)
+    drone = Drone(demo=True)
     drone.take_off()
     _try(drone.process_image)
 

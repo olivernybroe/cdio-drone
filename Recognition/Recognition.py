@@ -9,7 +9,7 @@ import numpy as np
 class Recognition:
     image = None
 
-    def __init__(self, threshold=0.8):
+    def __init__(self, threshold=0.8, verbalise=True):
         """
         Construct the recognition object.
 
@@ -22,7 +22,7 @@ class Recognition:
         options = {"pbLoad": "Yolo/tiny-yolo-voc-2c.pb",
                    "metaLoad": "Yolo/tiny-yolo-voc-2c.meta",
                    "threshold": threshold,
-                   # "verbalise": False,
+                   "verbalise": verbalise,
                    }
 
         self.tf_net = TFNet(options)

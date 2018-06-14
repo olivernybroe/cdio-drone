@@ -1,3 +1,6 @@
+import _thread
+import threading
+
 import cv2
 from time import sleep
 
@@ -13,11 +16,15 @@ def _try(process_image):
         sleep(0.1)
 
     print("Connected.")
+    count = 0
     while running:
         running, frame = cam.read()
 
-        if running and frame is not None:
+        if running and frame is not None and (count/6) % 2 == 0:
             process_image(frame)
+            # _thread.start_new_thread(process_image, (frame,))
+
+        count = count+1
 
     print("Disconnected, reconnecting to drone.")
     _try(process_image)
